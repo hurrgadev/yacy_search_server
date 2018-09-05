@@ -3786,9 +3786,7 @@ public final class Switchboard extends serverSwitch {
         // TODO: same is true for credential checks below (at least with BASIC auth -> login should expire at least on restart
         if (requestHeader.isUserInRole(UserDB.AccessRight.ADMIN_RIGHT.toString())) {
             if (adminAuthenticationLastAccess + 60000 > System.currentTimeMillis()) // 1 minute
-                System.err.println("-*-*-*-* 1");
             return 4; // hard-authenticated, quick return
-
         }
 
         // authorization in case that there is no account stored
@@ -3796,7 +3794,6 @@ public final class Switchboard extends serverSwitch {
         final String adminAccountBase64MD5 = getConfig(SwitchboardConstants.ADMIN_ACCOUNT_B64MD5, "");
         if ( adminAccountBase64MD5.isEmpty() ) {
             adminAuthenticationLastAccess = System.currentTimeMillis();
-            System.err.println("-*-*-*-* 2");
             return 2; // no password stored; this should not happen for older peers
         }
 
@@ -3804,7 +3801,6 @@ public final class Switchboard extends serverSwitch {
         final boolean accessFromLocalhost = requestHeader.accessFromLocalhost();
         if (accessFromLocalhost && getConfigBool(SwitchboardConstants.ADMIN_ACCOUNT_FOR_LOCALHOST, false)) {
             adminAuthenticationLastAccess = System.currentTimeMillis();
-            System.err.println("-*-*-*-* 3");
             return 3; // soft-authenticated for localhost
         }
 
@@ -3821,7 +3817,6 @@ public final class Switchboard extends serverSwitch {
         if (HttpServletRequest.BASIC_AUTH.equalsIgnoreCase(requestHeader.getAuthType())) {
             // security check against too long authorization strings (for BASIC auth)
             if (realmValue.length() > 256) {
-                System.err.println("-*-*-*-* 5");
                 return 0;
             }
         } else {
@@ -3829,11 +3824,10 @@ public final class Switchboard extends serverSwitch {
             if (requestHeader.getUserPrincipal() != null) { // user is authenticated (by Servlet container)
                 if (requestHeader.isUserInRole(AccessRight.ADMIN_RIGHT.toString())) {
                     // we could double check admin right (but we trust embedded container)
-                     String username = requestHeader.getUserPrincipal().getName();
-                     if ((username.equalsIgnoreCase(sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_USER_NAME, "admin")))
-                            || (sb.userDB.getEntry(username).hasRight(AccessRight.ADMIN_RIGHT)))
+                    // String username = requestHeader.getUserPrincipal().getName();
+                    // if ((username.equalsIgnoreCase(sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_USER_NAME, "admin")))
+                    //        || (sb.userDB.getEntry(username).hasRight(AccessRight.ADMIN_RIGHT)))
                     adminAuthenticationLastAccess = System.currentTimeMillis();
-                     System.err.println("-*-*-*-* 6");
                     return 4; // has admin right
                 }
             }
@@ -3843,14 +3837,12 @@ public final class Switchboard extends serverSwitch {
         String pass = Base64Order.standardCoder.encodeString(adminAccountUserName + ":" + adminAccountBase64MD5);
         if ( accessFromLocalhost && (pass.equals(realmValue)) ) { // assume realmValue as is in cfg
             adminAuthenticationLastAccess = System.currentTimeMillis();
-            System.err.println("-*-*-*-* 7");
             return 3; // soft-authenticated for localhost
         }
 
         // authorization by hit in userDB (authtype username:encodedpassword - handed over by DefaultServlet)
         if ( this.userDB.hasAdminRight(requestHeader, requestHeader.getCookies()) ) {
             adminAuthenticationLastAccess = System.currentTimeMillis();
-            System.err.println("-*-*-*-* 8");
             return 4; //return, because 4=max
         }
 
@@ -3864,14 +3856,12 @@ public final class Switchboard extends serverSwitch {
 
                 if (adminAccountBase64MD5.substring(4).equals(Digest.encodeMD5Hex(realmtmp))) {
                     adminAuthenticationLastAccess = System.currentTimeMillis();
-                    System.err.println("-*-*-*-* 9");
                     return 4; // hard-authenticated, all ok
                 }
             } else {
                 // handle DIGEST auth (realmValue = adminAccountBase (set for lecacyHeader in DefaultServlet for authenticated requests)
                 if (adminAccountBase64MD5.equals(realmValue)) {
                     adminAuthenticationLastAccess = System.currentTimeMillis();
-                    System.err.println("-*-*-*-* 10");
                     return 4; // hard-authenticated, all ok
                 }
             }
@@ -3879,11 +3869,9 @@ public final class Switchboard extends serverSwitch {
             // handle old option  adminAccountBase64MD5="xxxxxxx" = encodeMD55Hex(encodeB64("adminname:password")
             if (adminAccountBase64MD5.equals(Digest.encodeMD5Hex(realmValue))) {
                 adminAuthenticationLastAccess = System.currentTimeMillis();
-                System.err.println("-*-*-*-* 11");
                 return 4; // hard-authenticated, all ok
             }
         }
-        System.err.println("-*-*-*-* 12");
         return 1;
     }
 
