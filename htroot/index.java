@@ -28,21 +28,28 @@
 // javac -classpath .:../classes index.java
 // if the shell's current path is HTROOT
 
+import javax.servlet.ServletException;
 import net.yacy.cora.document.analysis.Classification;
 import net.yacy.cora.document.analysis.Classification.ContentDomain;
 import net.yacy.cora.protocol.RequestHeader;
+import net.yacy.cora.protocol.ResponseHeader;
 import net.yacy.data.UserDB;
 import net.yacy.search.Switchboard;
 import net.yacy.search.SwitchboardConstants;
 import net.yacy.search.schema.CollectionSchema;
 import net.yacy.server.serverObjects;
 import net.yacy.server.serverSwitch;
+import net.yacy.server.servletProperties;
 
 public class index {
 
-    public static serverObjects respond(final RequestHeader header, final serverObjects post, final serverSwitch env) {
+    @SuppressWarnings("static-access")
+	public static serverObjects respond(final RequestHeader header, final serverObjects post, final serverSwitch env) {
         final Switchboard sb = (Switchboard) env;
         final serverObjects prop = new serverObjects();
+        final servletProperties sProp = new servletProperties();
+        UserDB.Entry user;
+        
 
         final String forwardTarget = sb.getConfig(SwitchboardConstants.INDEX_FORWARD, "");
         if (forwardTarget.length() > 0) {
@@ -59,7 +66,7 @@ public class index {
         if(adminAuthenticated) {
 			authenticatedUserName = sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_USER_NAME, "admin");
         } else {
-        	final UserDB.Entry user = sb.userDB != null ? sb.userDB.getUser(header) : null;
+        	user = sb.userDB != null ? sb.userDB.getUser(header) : null;
         	if(user != null) {
                 authenticatedUserName = user.getUserName();
         	}
@@ -74,9 +81,32 @@ public class index {
 				prop.authenticationRequired();
 				return prop;
 			}
-		}
-		
-        prop.put("authSearch", authenticated);
+			
+	        prop.put("authSearch", authenticated);
+			
+		    if(post.containsKey("logout")){ //call from simpleSearchHeader.template
+		    	user = sb.userDB != null ? sb.userDB.getUser(header) : null;
+		        if(user != null){
+	                final String ip = header.getRemoteAddr();
+	                user.logout((ip != null ? ip : "xxxxxx"), UserDB.getLoginToken(header.getCookies()));
+	            }
+		        
+
+	        try {
+	            header.logout(); // servlet container session logout
+	        } catch (ServletException ex) {}
+            sb.clearCaches();
+            final ResponseHeader outgoingHeader=new ResponseHeader(401);
+            sProp.setOutgoingHeader(outgoingHeader);
+            System.err.println("-*-*-*-*-*-* clearCaches");
+	    	authenticatedUserName = null;
+	    	authenticated = false;	
+	        prop.put("authSearch", authenticated);
+
+		    }
+	        
+	    }		
+
         
         boolean global = (post == null) ? true : post.get("resource", "global").equals("global");
         final boolean focus  = (post == null) ? true : post.get("focus", "1").equals("1");
@@ -159,10 +189,11 @@ public class index {
         prop.put("search.navigation", sb.getConfig("search.navigation", "all") );
         prop.put("search.verify", sb.getConfig("search.verify", "iffresh") );
         
-        handleTopNavBarLoginSection(header, sb, prop, authenticatedUserName);
+        handleTopNavBarLoginSection(header, sb, prop, authenticatedUserName, authenticated);
         
         // online caution timing
         sb.localSearchLastAccess = System.currentTimeMillis();
+
 
         return prop;
     }
@@ -175,7 +206,7 @@ public class index {
      * @param authenticatedUserName the name of the currently authenticated user or null
      */
 	private static void handleTopNavBarLoginSection(final RequestHeader header, final Switchboard sb,
-			final serverObjects prop, final String authenticatedUserName) {
+			final serverObjects prop, final String authenticatedUserName, final Boolean authenticated) {
 		final boolean showLogin = sb.getConfigBool(SwitchboardConstants.SEARCH_PUBLIC_TOP_NAV_BAR_LOGIN,
 				SwitchboardConstants.SEARCH_PUBLIC_TOP_NAV_BAR_LOGIN_DEFAULT);
         if(showLogin) {
@@ -183,17 +214,19 @@ public class index {
         		/* Show the name of the authenticated user */
         		prop.put("showLogin", 1);
         		prop.put("showLogin_userName", authenticatedUserName);
+
+
+        		
         	} else {
         		/* Show a login link */
         		prop.put("showLogin", 2);
-        		
-        		/* The login link targets the same URL as the current location, just adding the 'auth' parameter to indicates that access to extended search features is desired */
-            	StringBuilder loginURL = new StringBuilder("index.html?auth");
+                prop.put("authSearch", authenticated); //????
+        		/* The login link targets the same URL as the current location (modiefied to User.html), just adding the 'auth' parameter to indicates that access to extended search features is desired */
+            	StringBuilder loginURL = new StringBuilder("User.html?auth");
             	final String query = header.getQueryString();
             	if(query != null) {
             		loginURL.append("&").append(query);
-            	}
-            	
+            	}            	
         		
     			prop.put("showLogin_loginURL", loginURL.toString());
         	}

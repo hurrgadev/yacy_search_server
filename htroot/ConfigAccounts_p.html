@@ -29,7 +29,7 @@
     #(passwordNotSetWarning)#::<div class="error">No password is set for the administration account. Please define a password for the admin account.</div>#(/passwordNotSetWarning)#
 
     <fieldset><legend>Admin Account</legend>
-      <form action="ConfigAccounts_p.html" method="post" accept-charset="UTF-8">
+      <form action="method="post" accept-charset="UTF-8">
       	  <input type="hidden" name="transactionToken" value="#[transactionToken]#"/>
           <fieldset>
             <legend>
@@ -64,7 +64,7 @@
     </fieldset>
     
     <fieldset><legend>Access Rules</legend>
-      <form action="ConfigAccounts_p.html" method="post" accept-charset="UTF-8">
+      <form action="" method="post" accept-charset="UTF-8">
       		<input type="hidden" name="transactionToken" value="#[transactionToken]#"/>
             <dl class="userConfig">
               <dt>Protection of all pages: if set to on, access to all pages need authorization; if off, only pages with "_p" extension are protected.</dt>
@@ -79,7 +79,7 @@
     </fieldset>
     
     <fieldset><legend>User Accounts</legend>
-      <form action="ConfigAccounts_p.html" method="post" accept-charset="UTF-8">
+      <form action="" method="post" accept-charset="UTF-8">
       <input type="hidden" name="transactionToken" value="#[transactionToken]#"/>
       <fieldset><legend>Select user</legend>
         <dl>
@@ -99,7 +99,7 @@
       </fieldset>
     </form>
     
-    <form action="ConfigAccounts_p.html" method="post" accept-charset="UTF-8">
+    <form action="" method="post" accept-charset="UTF-8">
       <input type="hidden" name="transactionToken" value="#[transactionToken]#"/>
       <fieldset><legend>Edit current user: #[username]#</legend>
         <!-- Hidden(text for debugging): <input type="text" name="current_user" value="#[current_user]#" readonly> -->

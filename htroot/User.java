@@ -46,7 +46,7 @@ public class User{
         final servletProperties prop = new servletProperties();
         final Switchboard sb = Switchboard.getSwitchboard();
         UserDB.Entry entry=null;
-
+       boolean res = false;
         //default values
         prop.put("logged_in", "0");
         prop.put("logged-in_limit", "0");
@@ -56,15 +56,18 @@ public class User{
         //identified via HTTPPassword
         entry=sb.userDB.proxyAuth(requestHeader);
         if(entry != null){
+            System.err.println("-*-*-*-* " + "HTTPPassword = " + entry.getFirstName());
         	prop.put("logged-in_identified-by", "1");
         //try via cookie
         }else{
             entry=sb.userDB.cookieAuth(requestHeader.getCookies());
             prop.put("logged-in_identified-by", "2");
+            System.err.println("-*-*-*-* " + "Cookie = " + "failed");
             //try via ip
             if(entry == null){
                 final String ip = requestHeader.getRemoteAddr();
-                entry = sb.userDB.ipAuth((ip != null ? ip : "xxxxxx"));
+                entry = sb.userDB.ipAuth(ip != null ? ip : "xxxxxx");
+                System.err.println("-*-*-*-* " + "IP = " + ip);
                 if(entry != null){
                     prop.put("logged-in_identified-by", "0");
                 }
@@ -75,6 +78,7 @@ public class User{
         if(entry != null){
             prop.put("logged-in", "1");
             prop.put("logged-in_username", entry.getUserName());
+            prop.put("logged-in_info", entry.toString());
             if(entry.getTimeLimit() > 0){
                 prop.put("logged-in_limit", "1");
                 final long limit=entry.getTimeLimit();
@@ -86,10 +90,12 @@ public class User{
                     percent=(int)((float)used/(float)limit*100);
                 prop.put("logged-in_limit_percent", percent/3);
                 prop.put("logged-in_limit_percent2", (100-percent)/3);
+                System.err.println("-*-*-*-* " + "UserDB = " + entry.getFirstName());
             }
         //logged in via static Password
         }else if(sb.verifyAuthentication(requestHeader)){
             prop.put("logged-in", "2");
+            System.err.println("-*-*-*-* " + "StaticPW = ");
         //identified via form-login
         } else if (post != null && post.containsKey("username") && post.containsKey("password")) {
         	if (post.containsKey("returnto"))
@@ -104,11 +110,13 @@ public class User{
                 // check for old style admin account
                 staticAdmin = sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_B64MD5, "").equals(
                         Digest.encodeMD5Hex(Base64Order.standardCoder.encodeString(username + ":" + password)));
+                System.err.println("-*-*-*-* " + "Old Style Admin Account = " + staticAdmin);
                 if (!staticAdmin) {
                     // check for DIGEST authentication admin account
                     final String realm = sb.getConfig(SwitchboardConstants.ADMIN_REALM, "YaCy");
                     staticAdmin = sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_B64MD5, "").equals(
                             "MD5:" + Digest.encodeMD5Hex(username + ":" + realm + ":" + password));
+                    System.err.println("-*-*-*-* " + "DIGEST Admin Account = " + staticAdmin);
                 }
             }
 
@@ -126,6 +134,7 @@ public class User{
                 if(post.containsKey("returnto")){
                     prop.put(serverObjects.ACTION_LOCATION, post.get("returnto"));
                 }
+                System.err.println("-*-*-*-* " + "Cookie set = " + cookie);
             }
         }
 
@@ -157,6 +166,8 @@ public class User{
         }
         if(post!=null && post.containsKey("logout")){
             prop.put("logged-in", "0");
+            final ResponseHeader outgoingHeader=new ResponseHeader(401);
+            prop.setOutgoingHeader(outgoingHeader);
             if(entry != null){
                 final String ip = requestHeader.getRemoteAddr();
                 entry.logout((ip != null ? ip : "xxxxxx"), UserDB.getLoginToken(requestHeader.getCookies()));
@@ -167,6 +178,7 @@ public class User{
             if(post.containsKey("returnto")){
                 prop.putHTML(serverObjects.ACTION_LOCATION, post.get("returnto"));
             }
+            
         }
         // return rewrite properties
         return prop;

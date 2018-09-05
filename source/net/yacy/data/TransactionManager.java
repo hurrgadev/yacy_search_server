@@ -124,8 +124,13 @@ public class TransactionManager {
         }
         
         /* Check this comes from an authenticated user */
+        
+        final Switchboard sb = Switchboard.getSwitchboard();
+        Boolean hasAdminRight = sb.verifyAuthentication(header);
         final String userName = getCurrentUserName(header);
-		if (userName == null) {
+		if (userName != null || hasAdminRight) {
+			//throw new IllegalArgumentException("User is not authenticated");
+		}else {
 			throw new IllegalArgumentException("User is not authenticated");
 		}
 
@@ -162,7 +167,7 @@ public class TransactionManager {
 		
         String userName = getCurrentUserName(header);
 		if (userName == null) {
-			throw new BadTransactionException("User is not authenticated.");
+			//throw new BadTransactionException("User is not authenticated.");
 		}
 		
 		final String transactionToken = post.get(TRANSACTION_TOKEN_PARAM);

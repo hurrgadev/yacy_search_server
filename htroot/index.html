@@ -42,6 +42,7 @@
     #%env/templates/embeddedheader.template%#
     ::
     #%env/templates/simpleSearchHeader.template%#
+    
     <script type="text/javascript">
       document.getElementById("header_websearch").className += " active";
     </script>
@@ -61,7 +62,9 @@
             <button id="Enter" name="Enter" class="btn btn-primary" type="submit">Search</button>
           </div>
         </div>
-    	#(authSearch)#::
+    	#(authSearch)#
+    	<br>AUTHSEARCH FALSE</br>::
+    	<br>AUTHSEARCH TRUE</br>
   		<input type="hidden" name="auth" id="auth" value=""/>
   		#(/authSearch)#
         <input type="hidden" name="verify" value="#[search.verify]#" />

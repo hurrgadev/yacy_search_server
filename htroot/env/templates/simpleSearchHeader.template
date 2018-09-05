@@ -17,13 +17,17 @@
     <div class="navbar-collapse collapse">
     <ul class="nav navbar-nav">
       #(showLogin)#::
+      <form action="index.html" method="post" accept-charset="UTF-8">
       <li id="header_login" title="You are authenticated as #[userName]#" class="navbar-text">
-      	<span class="glyphicon glyphicon-user text-info"></span>
+      	<span class="glyphicon glyphicon-user text-info"></span>      	
      	<span>#[userName]#</span>
+        <input type="submit" name="logout" value="logout">
+      	</form>
+
       </li>
       ::
       <li id="header_login">
-        <a title="Log in to use extended search features" href="#[loginURL]#">
+        <a title="Log in to use extended search features" href="User.html">
 	      	<span>Log in</span>
         	<span class="glyphicon glyphicon-log-in"></span>
         </a>

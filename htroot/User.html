@@ -11,7 +11,7 @@
     <p>
       You are not logged in.<br />
       <form action="User.html" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="returnto" value="#[returnto]#" />
+        <input type="hidden" name="returnto" value="index.html" /> //"#[returnto]#"
         Username: <input type="text" name="username" value="#[username]#" /><br />
         Password: <input type="password" name="password" /><br />
         <input type="submit" class="btn btn-primary" value="login" />
@@ -20,6 +20,7 @@
     ::
     <p>
       You are currently logged in as #[username]#.<br />
+      Info: #[info]# <br />
       (Identified by #(identified-by)#IP::Username/Password::Cookie#(/identified-by)#)<br />
       <form action="User.html" accept-charset="UTF-8">
         <input type="submit" name="logout" class="btn btn-danger" value="logout">
