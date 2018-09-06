@@ -28,6 +28,9 @@
 //if the shell's current path is HTROOT
 
 import javax.servlet.ServletException;
+
+import org.eclipse.jetty.client.HttpClient;
+
 import net.yacy.cora.order.Base64Order;
 import net.yacy.cora.order.Digest;
 import net.yacy.cora.protocol.RequestHeader;
@@ -178,6 +181,8 @@ public class User{
             if(post.containsKey("returnto")){
                 prop.putHTML(serverObjects.ACTION_LOCATION, post.get("returnto"));
             }
+            HttpClient httpClient = new HttpClient();
+            httpClient.getAuthenticationStore().clearAuthenticationResults();
             
         }
         // return rewrite properties

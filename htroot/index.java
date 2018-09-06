@@ -34,6 +34,7 @@ import net.yacy.cora.document.analysis.Classification.ContentDomain;
 import net.yacy.cora.protocol.RequestHeader;
 import net.yacy.cora.protocol.ResponseHeader;
 import net.yacy.data.UserDB;
+import net.yacy.data.UserDB.Entry;
 import net.yacy.search.Switchboard;
 import net.yacy.search.SwitchboardConstants;
 import net.yacy.search.schema.CollectionSchema;
@@ -43,12 +44,10 @@ import net.yacy.server.servletProperties;
 
 public class index {
 
-    @SuppressWarnings("static-access")
 	public static serverObjects respond(final RequestHeader header, final serverObjects post, final serverSwitch env) {
         final Switchboard sb = (Switchboard) env;
         final serverObjects prop = new serverObjects();
-        final servletProperties sProp = new servletProperties();
-        UserDB.Entry user;
+        Entry user;
         
 
         final String forwardTarget = sb.getConfig(SwitchboardConstants.INDEX_FORWARD, "");
@@ -94,17 +93,12 @@ public class index {
 
 	        try {
 	            header.logout(); // servlet container session logout
-	        } catch (ServletException ex) {}
-            sb.clearCaches();
-            final ResponseHeader outgoingHeader=new ResponseHeader(401);
-            sProp.setOutgoingHeader(outgoingHeader);
+	        	} catch (ServletException ex) {}
+            
             System.err.println("-*-*-*-*-*-* clearCaches");
 	    	authenticatedUserName = null;
-	    	authenticated = false;	
-	        prop.put("authSearch", authenticated);
-
-		    }
-	        
+	    	authenticated = false;	     
+		    }	        
 	    }		
 
         
@@ -222,7 +216,7 @@ public class index {
         		prop.put("showLogin", 2);
                 prop.put("authSearch", authenticated); //????
         		/* The login link targets the same URL as the current location (modiefied to User.html), just adding the 'auth' parameter to indicates that access to extended search features is desired */
-            	StringBuilder loginURL = new StringBuilder("User.html?auth");
+            	StringBuilder loginURL = new StringBuilder("index.html?auth");
             	final String query = header.getQueryString();
             	if(query != null) {
             		loginURL.append("&").append(query);
