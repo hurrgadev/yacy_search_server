@@ -28,9 +28,6 @@
 //if the shell's current path is HTROOT
 
 import javax.servlet.ServletException;
-
-import org.eclipse.jetty.client.HttpClient;
-
 import net.yacy.cora.order.Base64Order;
 import net.yacy.cora.order.Digest;
 import net.yacy.cora.protocol.RequestHeader;
@@ -59,18 +56,18 @@ public class User{
         //identified via HTTPPassword
         entry=sb.userDB.proxyAuth(requestHeader);
         if(entry != null){
-            System.err.println("-*-*-*-* " + "HTTPPassword = " + entry.getFirstName());
+            System.err.println("User -*-*-*-* " + "HTTPPassword = " + entry.getFirstName());
         	prop.put("logged-in_identified-by", "1");
         //try via cookie
         }else{
             entry=sb.userDB.cookieAuth(requestHeader.getCookies());
             prop.put("logged-in_identified-by", "2");
-            System.err.println("-*-*-*-* " + "Cookie = " + "failed");
+            System.err.println("User -*-*-*-* " + "Cookie = " + "failed");
             //try via ip
             if(entry == null){
                 final String ip = requestHeader.getRemoteAddr();
                 entry = sb.userDB.ipAuth(ip != null ? ip : "xxxxxx");
-                System.err.println("-*-*-*-* " + "IP = " + ip);
+                System.err.println("User -*-*-*-* " + "IP = " + ip);
                 if(entry != null){
                     prop.put("logged-in_identified-by", "0");
                 }
@@ -93,12 +90,12 @@ public class User{
                     percent=(int)((float)used/(float)limit*100);
                 prop.put("logged-in_limit_percent", percent/3);
                 prop.put("logged-in_limit_percent2", (100-percent)/3);
-                System.err.println("-*-*-*-* " + "UserDB = " + entry.getFirstName());
+                System.err.println("User -*-*-*-* " + "UserDB = " + entry.getFirstName());
             }
         //logged in via static Password
         }else if(sb.verifyAuthentication(requestHeader)){
             prop.put("logged-in", "2");
-            System.err.println("-*-*-*-* " + "StaticPW = ");
+            System.err.println("User -*-*-*-* " + "StaticPW = ");
         //identified via form-login
         } else if (post != null && post.containsKey("username") && post.containsKey("password")) {
         	if (post.containsKey("returnto"))
@@ -113,13 +110,13 @@ public class User{
                 // check for old style admin account
                 staticAdmin = sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_B64MD5, "").equals(
                         Digest.encodeMD5Hex(Base64Order.standardCoder.encodeString(username + ":" + password)));
-                System.err.println("-*-*-*-* " + "Old Style Admin Account = " + staticAdmin);
+                System.err.println("User -*-*-*-* " + "Old Style Admin Account = " + staticAdmin);
                 if (!staticAdmin) {
                     // check for DIGEST authentication admin account
                     final String realm = sb.getConfig(SwitchboardConstants.ADMIN_REALM, "YaCy");
                     staticAdmin = sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_B64MD5, "").equals(
                             "MD5:" + Digest.encodeMD5Hex(username + ":" + realm + ":" + password));
-                    System.err.println("-*-*-*-* " + "DIGEST Admin Account = " + staticAdmin);
+                    System.err.println("User -*-*-*-* " + "DIGEST Admin Account = " + staticAdmin);
                 }
             }
 
@@ -137,7 +134,7 @@ public class User{
                 if(post.containsKey("returnto")){
                     prop.put(serverObjects.ACTION_LOCATION, post.get("returnto"));
                 }
-                System.err.println("-*-*-*-* " + "Cookie set = " + cookie);
+                System.err.println("User -*-*-*-* " + "Cookie set = " + cookie);
             }
         }
 
@@ -180,10 +177,7 @@ public class User{
             } catch (ServletException ex) {}
             if(post.containsKey("returnto")){
                 prop.putHTML(serverObjects.ACTION_LOCATION, post.get("returnto"));
-            }
-            HttpClient httpClient = new HttpClient();
-            httpClient.getAuthenticationStore().clearAuthenticationResults();
-            
+            }            
         }
         // return rewrite properties
         return prop;

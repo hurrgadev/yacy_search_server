@@ -40,9 +40,8 @@ import net.yacy.search.SwitchboardConstants;
 import net.yacy.search.schema.CollectionSchema;
 import net.yacy.server.serverObjects;
 import net.yacy.server.serverSwitch;
-import net.yacy.server.servletProperties;
 
-public class index {
+public class index{
 
 	public static serverObjects respond(final RequestHeader header, final serverObjects post, final serverSwitch env) {
         final Switchboard sb = (Switchboard) env;
@@ -91,13 +90,13 @@ public class index {
 	            }
 		        
 
-	        try {
-	            header.logout(); // servlet container session logout
+		        try {
+		        	header.logout(); // servlet container session logout
 	        	} catch (ServletException ex) {}
             
-            System.err.println("-*-*-*-*-*-* clearCaches");
-	    	authenticatedUserName = null;
-	    	authenticated = false;	     
+		        System.err.println("Index -*-*-*-*-*-* clearCaches");
+		        authenticatedUserName = null;
+		        authenticated = false;	     
 		    }	        
 	    }		
 
@@ -204,7 +203,7 @@ public class index {
 		final boolean showLogin = sb.getConfigBool(SwitchboardConstants.SEARCH_PUBLIC_TOP_NAV_BAR_LOGIN,
 				SwitchboardConstants.SEARCH_PUBLIC_TOP_NAV_BAR_LOGIN_DEFAULT);
         if(showLogin) {
-        	if(authenticatedUserName != null) {
+        	if(authenticatedUserName != null) { //is Logged in as user
         		/* Show the name of the authenticated user */
         		prop.put("showLogin", 1);
         		prop.put("showLogin_userName", authenticatedUserName);
@@ -217,6 +216,7 @@ public class index {
                 prop.put("authSearch", authenticated); //????
         		/* The login link targets the same URL as the current location (modiefied to User.html), just adding the 'auth' parameter to indicates that access to extended search features is desired */
             	StringBuilder loginURL = new StringBuilder("index.html?auth");
+            	System.err.println("Index -*-*-*-* " + loginURL);
             	final String query = header.getQueryString();
             	if(query != null) {
             		loginURL.append("&").append(query);

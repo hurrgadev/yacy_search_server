@@ -103,6 +103,7 @@ public class YaCyLoginService extends HashLoginService implements LoginService {
                     for (final AccessRight right : AccessRight.values()) {
                         if (user.hasRight(right)) {
                             roletmp.add(right.toString());
+                            System.err.println("YacyLoginService -*-*-*-* UserRightString: " + right.toString());
                         }
                     }
                     if (roletmp.size() > 0) {
@@ -119,6 +120,8 @@ public class YaCyLoginService extends HashLoginService implements LoginService {
                 theUser.authenticate(credential);
             }
         }
+        String testString =_userStore.getUserIdentity(username).toString();
+        System.err.println("YacyLoginService -*-*-*-* theUser: " + testString);
         return theUser;
     }
 
@@ -133,6 +136,7 @@ public class YaCyLoginService extends HashLoginService implements LoginService {
         if (uid != null) {
             logout(uid);
             _userStore.removeUser(username);
+            System.err.println("YacyLoginService -*-*-*-* removedUser: " + username);
             return true;
         }
         return false;

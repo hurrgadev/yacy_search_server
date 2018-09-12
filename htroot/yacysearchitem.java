@@ -106,10 +106,9 @@ public class yacysearchitem {
 		final boolean authenticated = adminAuthenticated || user != null;
 
         final boolean extendedSearchRights = adminAuthenticated || (user != null && user.hasRight(UserDB.AccessRight.EXTENDED_SEARCH_RIGHT));
-		
+        final boolean bookmarkRight = adminAuthenticated || (user != null && user.hasRight(UserDB.AccessRight.BOOKMARK_RIGHT));
         final int item = post.getInt("item", -1);
         final RequestHeader.FileType fileType = header.fileType();
-
 		if (post.containsKey("auth") && !adminAuthenticated && user == null) {
 			/*
 			 * Access to authentication protected features is explicitely requested here
@@ -170,9 +169,11 @@ public class yacysearchitem {
             final String resource = theSearch.query.domType.toString();
             final String origQ = theSearch.query.getQueryGoal().getQueryString(true);
             prop.put("content", 1); // switch on specific content
-            prop.put("content_authorized", adminAuthenticated ? "1" : "0");
+            prop.put("content_authorized", bookmarkRight? "1" : "0");  //Show Bookmark
             final String urlhash = ASCII.String(result.hash());
-            if (adminAuthenticated) { // only needed if authorized
+        	System.err.println("yacysearch -*-*-*-* BookmarkRight: " + bookmarkRight);
+            if (bookmarkRight) { // only needed if authorized
+
                 addAuthorizedActions(sb, prop, theSearch, resultUrlstring, resource, origQ, urlhash);
             }
             prop.putHTML("content_title", result.title());

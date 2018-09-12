@@ -44,6 +44,8 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.http.impl.conn.SystemDefaultDnsResolver;
+
 import net.yacy.cora.document.analysis.Classification;
 import net.yacy.cora.document.analysis.Classification.ContentDomain;
 import net.yacy.cora.document.encoding.UTF8;
@@ -102,20 +104,20 @@ public class yacysearch {
         final serverSwitch env) {
         final Switchboard sb = (Switchboard) env;
         sb.localSearchLastAccess = System.currentTimeMillis();
-
+		final UserDB.Entry user = sb.userDB != null ? sb.userDB.getUser(header) : null;
         String authenticatedUserName = null;
         final boolean adminAuthenticated = sb.verifyAuthentication(header);
         final boolean searchAllowed = sb.getConfigBool(SwitchboardConstants.PUBLIC_SEARCHPAGE, true) || adminAuthenticated;
+        final boolean bookmarkRight = adminAuthenticated || (user != null && user.hasRight(UserDB.AccessRight.BOOKMARK_RIGHT));
+        boolean extendedSearchRights = adminAuthenticated || (user != null && user.hasRight(UserDB.AccessRight.EXTENDED_SEARCH_RIGHT));
 
-        boolean extendedSearchRights = adminAuthenticated;
-        
         if(adminAuthenticated) {
 			authenticatedUserName = sb.getConfig(SwitchboardConstants.ADMIN_ACCOUNT_USER_NAME, "admin");
         } else {
-        	final UserDB.Entry user = sb.userDB != null ? sb.userDB.getUser(header) : null;
         	if(user != null) {
                 extendedSearchRights = user.hasRight(UserDB.AccessRight.EXTENDED_SEARCH_RIGHT);
                 authenticatedUserName = user.getUserName();
+                System.err.println("yacysearch -*-*-*-* authUserName Bookmark: " + user.hasRight(UserDB.AccessRight.BOOKMARK_RIGHT));
         	}
         }
         
@@ -599,7 +601,7 @@ public class yacysearch {
 
             // if a plus-button was hit, create new voting message
             if ( post != null && post.containsKey("recommendref") ) {
-                if ( !sb.verifyAuthentication(header) ) {
+                if ( !bookmarkRight ) {
                 	prop.authenticationRequired();
                     return prop;
                 }
@@ -622,22 +624,28 @@ public class yacysearch {
 
             // if a bookmarks-button was hit, create new bookmark entry
             if (post != null && post.containsKey("bookmarkref")) {
-                if (!sb.verifyAuthentication(header)) {
+                if (!bookmarkRight ) {
                     prop.authenticationRequired();
                     return prop;
                 }
                 //final String bookmarkHash = post.get("bookmarkref", ""); // urlhash
                 final String urlstr = crypt.simpleDecode(post.get("bookmarkurl"));
                 if (urlstr != null) {
-                    final Bookmark bmk = sb.bookmarksDB.createorgetBookmark(urlstr, YMarkTables.USER_ADMIN);
+                	String userName = user==null?YMarkTables.USER_ADMIN:user.getUserName();
+                	System.err.println("-*-*-*-* yacysearch - user : " + userName);
+                    final Bookmark bmk = sb.bookmarksDB.createorgetBookmark(urlstr, userName);
                     if (bmk != null) {
                         bmk.setProperty(Bookmark.BOOKMARK_QUERY, querystring);
-                        bmk.addTag("/search"); // add to bookmark folder
-                        bmk.addTag("searchresult"); // add tag
+                        bmk.addTag("/"+userName); // add to bookmark folder
+                        bmk.addTag("searchresult,"+userName); // add tag
                         String urlhash = post.get("bookmarkref");
                         final URIMetadataNode urlentry = indexSegment.fulltext().getMetadata(UTF8.getBytes(urlhash));
                         if (urlentry != null && !urlentry.dc_title().isEmpty()) {
                             bmk.setProperty(Bookmark.BOOKMARK_TITLE, urlentry.dc_title());
+                            bmk.setProperty(Bookmark.BOOKMARK_DESCRIPTION, urlentry.dc_subject());
+                            System.err.println("yacyseach -*-*-*-* Titel: " + urlentry.dc_title());
+                            System.err.println("yacyseach -*-*-*-* Text: " + urlentry.getText());
+                            System.err.println("yacyseach -*-*-*-* Text: " + urlentry.getText());
                         }
                         sb.bookmarksDB.saveBookmark(bmk);
                     }
@@ -647,10 +655,10 @@ public class yacysearch {
                                 sb.loader,
                                 urlstr,
                                 ClientIdentification.yacyInternetCrawlerAgent,
-                                YMarkTables.USER_ADMIN,
+                                userName+"659",
                                 true,
-                                "searchresult",
-                                "/search");
+                                "searchresults",
+                                userName+"662");
                     } catch (final Throwable e) { }
                 }
             }

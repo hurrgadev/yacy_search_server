@@ -70,7 +70,7 @@ public class ConfigBasic {
         final int authentication = sb.adminAuthenticated(header);
         if (authentication < 2) {
             // must authenticate
-        	System.err.println("-*-*-*-*-* Auth < 2");
+        	System.err.println("ConfigBasic -*-*-*-*-* Auth < 2");
         	prop.authenticationRequired();
             return prop;
         }
@@ -87,14 +87,14 @@ public class ConfigBasic {
         boolean ssl = env.getConfigBool("server.https", false);
         boolean upnp = false;
         if (post != null) {
-    		System.err.println("-*-*-*-* Set API Call");
+    		System.err.println("ConfigBasic -*-*-*-* Set API Call " + peerName);
         	/* Settings will be modified : check this is a valid transaction using HTTP POST method */
         	TransactionManager.checkPostTransaction(header, post);
 
             // store this call as api call
         	if(post.containsKey("set")) {
         		sb.tables.recordAPICall(post, "ConfigBasic.html", WorkTables.TABLE_API_TYPE_CONFIGURATION, "basic settings");
-        		System.err.println("-*-*-*-* Set API Call");
+        		System.err.println("ConfigBasic -*-*-*-* Set API Call if Post contains set");
         	}
         	
         	// language settings
