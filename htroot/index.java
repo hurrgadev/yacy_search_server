@@ -213,7 +213,7 @@ public class index{
         	} else {
         		/* Show a login link */
         		prop.put("showLogin", 2);
-                prop.put("authSearch", authenticated); //????
+                prop.put("authSearch", authenticated); //?????
         		/* The login link targets the same URL as the current location (modiefied to User.html), just adding the 'auth' parameter to indicates that access to extended search features is desired */
             	StringBuilder loginURL = new StringBuilder("index.html?auth");
             	System.err.println("Index -*-*-*-* " + loginURL);
