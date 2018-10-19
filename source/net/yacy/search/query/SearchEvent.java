@@ -75,6 +75,8 @@ import net.yacy.cora.storage.HandleSet;
 import net.yacy.cora.util.ConcurrentLog;
 import net.yacy.cora.util.SpaceExceededException;
 import net.yacy.crawler.retrieval.Response;
+import net.yacy.data.BookmarksDB;
+import net.yacy.data.BookmarksDB.Bookmark;
 import net.yacy.data.WorkTables;
 import net.yacy.document.LargeNumberCache;
 import net.yacy.document.LibraryProvider;
@@ -150,6 +152,8 @@ public final class SearchEvent implements ScoreMapUpdatesListener {
     private byte[] IAmaxcounthash, IAneardhthash;
     public Thread rwiProcess;
     public Thread localsolrsearch;
+    
+    public Switchboard sb = Switchboard.getSwitchboard();
     
     /** Offset of the next local Solr index request
      * Example : last local request with offset=10 and itemsPerPage=20, sets this attribute to 30. */
@@ -308,6 +312,28 @@ public final class SearchEvent implements ScoreMapUpdatesListener {
      */
     public long getRemoteDocStoredMaxSize() {
     	return this.remoteStoredDocMaxSize;
+    }
+    
+    public long boostBookmarks(URIMetadataNode iEntry, long score) {
+        Iterator<Bookmark> it = sb.bookmarksDB.getBookmarksIterator();
+        while(it.hasNext()) {
+        	Bookmark b = it.next();
+        	b.getHostIdHash();
+        	b.getOrganization();
+        	System.err.println("-*-*-*-* SearchEvent: Iterator String: " + b.getHostIdHash()); 
+            System.err.println("-*-*-*-* SearchEvent: OrganizationBM: " + b.getOrganization());
+            //TODO: OrganizationBM ist immer null!!!
+            
+            System.err.println("-*-*-*-* SearchEvent: getBookmark: " + ASCII.String(iEntry.hash()));
+            if(iEntry.hostid().equals(b.getHostIdHash()) || iEntry.hosthash().equals(b.getOrganization())) {
+                System.err.println("-*-*-*-* SearchEvent: Host-ID: " + iEntry.hostid() + " ist Forschung");
+
+                score += 255 << 5; //this.query.ranking.coeff_organization
+                System.err.println("-*-*-*-* SearchEvent: SCORE: " + score);
+            }    
+                      
+        }
+        return score;
     }
     
     protected SearchEvent(
@@ -1997,6 +2023,7 @@ public final class SearchEvent implements ScoreMapUpdatesListener {
             if (urlcompmap.contains(queryword)) r += 255 << this.query.ranking.coeff_appurl;
             if (descrcompmap.contains(queryword)) r += 255 << this.query.ranking.coeff_app_dc_title;
         }
+        r =+ boostBookmarks(rentry, r);
         return r;
     }
     

@@ -274,6 +274,11 @@ public class URIMetadataNode extends SolrDocument /* implements Comparable<URIMe
         if (a == null || a.size() == 0) return "";
         return a.get(0);
     }
+    
+    public String dc_hostid() {
+    	return getString(CollectionSchema.host_id_s);
+   
+    }
 
     public List<String> h1() {
         ArrayList<String> a = getStringList(CollectionSchema.h1_txt);
@@ -979,6 +984,11 @@ public class URIMetadataNode extends SolrDocument /* implements Comparable<URIMe
             titlestr = this.url() != null ? this.url().getFileName() : "";
         }
         return titlestr;
+    }
+    
+    public String hostid() {
+    	String hostIdstr = this.dc_hostid();
+    	return hostIdstr;
     }
     /**
      * used for search result entry

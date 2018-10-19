@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,6 +112,8 @@ public class BookmarksDB {
         this.dates = new BookmarkDate(datesFile);
         if (!datesExisted) this.dates.init(new bookmarkIterator(true));
     }
+    
+    
 
     // -----------------------------------------------------
     // bookmarksDB's functions for 'destructing' the class
@@ -177,7 +180,7 @@ public class BookmarksDB {
         } catch (final Throwable e) {
             return null;
         }
-    }
+    }   
 
     public boolean removeBookmark(final String urlHash){
         Bookmark bookmark = getBookmark(urlHash);
@@ -468,6 +471,8 @@ public class BookmarksDB {
         private static final String BOOKMARK_IS_FEED = "bookmarkIsFeed";
         public static final String BOOKMARK_QUERY = "bookmarkQuery"; // tag for original search string if bookmark was created from search result
         private final String urlHash;
+        private String hostIdHash;   //to compare Bookmarks (Bernd)
+        private String organization;   //to compare Bookmarks (Bernd)
         private Set<String> tagNames;
         private long timestamp;
         private final Map<String, String> entry;
@@ -475,6 +480,8 @@ public class BookmarksDB {
         public Bookmark(final DigestURL url) {
             this.entry = new HashMap<String, String>();
             this.urlHash = ASCII.String(url.hash());
+            this.hostIdHash = getHostIdHash();
+            this.organization = getOrganization();
             this.entry.put(BOOKMARK_URL, url.toNormalform(false));
             this.tagNames = new HashSet<String>();
             this.timestamp = System.currentTimeMillis();
@@ -495,14 +502,16 @@ public class BookmarksDB {
         public Bookmark(final String url) throws MalformedURLException {
             this(new DigestURL((url.indexOf("://") < 0) ? "http://" + url : url));
         }
-
+        
         private Bookmark(final Map<String, String> map) throws MalformedURLException {
             this.entry = map;
             this.urlHash = ASCII.String((new DigestURL(map.get(BOOKMARK_URL))).hash());
             this.tagNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
             if (map.containsKey(BOOKMARK_TAGS)) this.tagNames.addAll(ListManager.string2set(map.get(BOOKMARK_TAGS)));
             loadTimestamp();
-        }
+}
+
+
 
         private Map<String, String> toMap() {
             this.entry.put(BOOKMARK_TAGS, ListManager.collection2string(this.tagNames));
@@ -517,6 +526,17 @@ public class BookmarksDB {
 
         public String getUrlHash() {
             return this.urlHash;
+        }
+        
+        public String getHostIdHash() {
+        	hostIdHash = urlHash.substring(6);
+        	return hostIdHash;
+        }
+        
+        public String getOrganization() {
+        	String[] org = getHostIdHash().split("//."); 
+       
+       	return org.length>1?org[1]:null;
         }
 
         public String getUrl() {
