@@ -22,6 +22,8 @@
       	<span class="glyphicon glyphicon-user text-info"></span>      	
      	<span>#[userName]#</span>
         <input type="submit" name="logout" value="logout">
+        		<a href="User.html" class="MenuItemLink">Change PW</a>
+    	<a href="Bookmarks.html" class="MenuItemLink">Bookmarks</a> 
       	</form>
 
       </li>

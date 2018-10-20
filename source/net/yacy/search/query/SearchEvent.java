@@ -314,24 +314,31 @@ public final class SearchEvent implements ScoreMapUpdatesListener {
     	return this.remoteStoredDocMaxSize;
     }
     
+    /**
+     * @return new Score if Bookmark found
+     * Zero or negative value means no limit. 
+     */
     public long boostBookmarks(URIMetadataNode iEntry, long score) {
         Iterator<Bookmark> it = sb.bookmarksDB.getBookmarksIterator();
         while(it.hasNext()) {
         	Bookmark b = it.next();
-        	b.getHostIdHash();
-        	b.getOrganization();
-        	System.err.println("-*-*-*-* SearchEvent: Iterator String: " + b.getHostIdHash()); 
+            System.err.println("-*-*-*-* SearchEvent: URLName: " + iEntry.urlname());
+            System.err.println("-*-*-*-* SearchEvent: iEntry_DC HOST: " + iEntry.dc_host());
+        	System.err.println("-*-*-*-* SearchEvent: Bookmark IdHash String: " + b.getHostIdHash());
+            System.err.println("-*-*-*-* SearchEvent: iEntry HostHash: " + iEntry.hosthash());
+            System.err.println("-*-*-*-* SearchEvent: iEntry hash: " + ASCII.String(iEntry.hash()));
             System.err.println("-*-*-*-* SearchEvent: OrganizationBM: " + b.getOrganization());
-            //TODO: OrganizationBM ist immer null!!!
-            
-            System.err.println("-*-*-*-* SearchEvent: getBookmark: " + ASCII.String(iEntry.hash()));
-            if(iEntry.hostid().equals(b.getHostIdHash()) || iEntry.hosthash().equals(b.getOrganization())) {
-                System.err.println("-*-*-*-* SearchEvent: Host-ID: " + iEntry.hostid() + " ist Forschung");
-
-                score += 255 << 5; //this.query.ranking.coeff_organization
-                System.err.println("-*-*-*-* SearchEvent: SCORE: " + score);
-            }    
-                      
+            System.err.println("-*-*-*-* SearchEvent: getHostBM: " + b.getHost());
+            System.err.println("-*-*-*-* SearchEvent: getUrlBM: " + b.getUrl());
+ 
+            if(iEntry.hostName().equals(b.getHost())) {
+                System.err.println("-*-*-*-* SearchEvent: Host-ID: " + iEntry.hostid());
+                System.err.println("-*-*-*-* SearchEvent: Host-Name: " + iEntry.hostName()+ " ist Forschung");
+                System.err.println("-*-*-*-* SearchEvent: SCORE davor: " + score);
+                score = score << this.query.ranking.coeff_bookmarks;
+                System.err.println("-*-*-*-* SearchEvent: SCORE danach: " + score);
+                return score;
+            }                         
         }
         return score;
     }

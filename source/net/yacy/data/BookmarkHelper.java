@@ -131,6 +131,7 @@ public class BookmarkHelper {
 
         Collection<AnchorURL> links = new ArrayList<AnchorURL>();
         String title;
+        String host;
         Bookmark bm;
         final Set<String> tags=ListManager.string2set(tag); //this allow multiple default tags
         try {
@@ -144,12 +145,14 @@ public class BookmarkHelper {
         } catch (final IOException e) { ConcurrentLog.warn("BOOKMARKS", "error during load of links: "+ e.getClass() +" "+ e.getMessage());}
         for (final AnchorURL url: links) {
             title = url.getNameProperty();
+            host = url.getHost();
             ConcurrentLog.info("BOOKMARKS", "links.get(url)");
             if ("".equals(title)) {//cannot be displayed
                 title = url.toNormalform(false);
             }
             bm = db.new Bookmark(url);
             bm.setProperty(Bookmark.BOOKMARK_TITLE, title);
+            bm.setProperty(Bookmark.BOOKMARK_HOST, host);
             bm.setTags(tags);
             bm.setPublic(importPublic);
             db.saveBookmark(bm);

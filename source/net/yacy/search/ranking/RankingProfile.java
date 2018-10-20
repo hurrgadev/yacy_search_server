@@ -73,6 +73,7 @@ public class RankingProfile {
     public static final String DESCRCOMPINTOPLIST = "descrcompintoplist";
     public static final String PREFER             = "prefer";
     public static final String CITATION           = "citation";
+    public static final String BOOKMARKS	 	  = "bookmarks";
 
     // coefficient max/min values
     public static final int COEFF_MIN =  0;
@@ -85,7 +86,7 @@ public class RankingProfile {
         coeff_appurl, coeff_app_dc_title, coeff_app_dc_creator, coeff_app_dc_subject, coeff_app_dc_description, coeff_appemph,
         coeff_catindexof, coeff_cathasimage, coeff_cathasaudio, coeff_cathasvideo, coeff_cathasapp,
         coeff_urlcompintoplist, coeff_descrcompintoplist, coeff_prefer,
-        coeff_termfrequency, coeff_language, coeff_citation;
+        coeff_termfrequency, coeff_language, coeff_citation, coeff_bookmarks;
 
     public RankingProfile(final Classification.ContentDomain mediatype) {
         // set default-values
@@ -122,6 +123,7 @@ public class RankingProfile {
         this.coeff_descrcompintoplist = 2;
         this.coeff_prefer             = 0;
         this.coeff_citation           = 10;
+        this.coeff_bookmarks          = 0;
     }
 
     public RankingProfile(final String prefix, String profile) {
@@ -184,6 +186,7 @@ public class RankingProfile {
             this.coeff_prefer             = parseMap(coeff, PREFER, this.coeff_prefer);
             this.coeff_language           = parseMap(coeff, LANGUAGE, this.coeff_language);
             this.coeff_citation           = parseMap(coeff, CITATION, this.coeff_citation);
+            this.coeff_bookmarks          = parseMap(coeff, BOOKMARKS, this.coeff_bookmarks);
         }
     }
 
@@ -230,6 +233,7 @@ public class RankingProfile {
         this.coeff_prefer             = 0;
         this.coeff_language           = 0;
         this.coeff_citation           = 0;
+        this.coeff_bookmarks          = 0;
     }
     
     private String externalStringCache = null;
@@ -316,11 +320,13 @@ public class RankingProfile {
             ext.put(DESCRCOMPINTOPLIST, Integer.toString(this.coeff_descrcompintoplist));
             ext.put(PREFER, Integer.toString(this.coeff_prefer));
             ext.put(CITATION, Integer.toString(this.coeff_citation));
+            ext.put(BOOKMARKS, Integer.toString(this.coeff_bookmarks));
         } else {
             ext.put(prefix + URLCOMPINTOPLIST, Integer.toString(this.coeff_urlcompintoplist));
             ext.put(prefix + DESCRCOMPINTOPLIST, Integer.toString(this.coeff_descrcompintoplist));
             ext.put(prefix + PREFER, Integer.toString(this.coeff_prefer));
             ext.put(prefix + CITATION, Integer.toString(this.coeff_citation));
+            ext.put(prefix + BOOKMARKS, Integer.toString(this.coeff_bookmarks));
         }
         return ext;
     }

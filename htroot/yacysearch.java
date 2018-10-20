@@ -638,11 +638,13 @@ public class yacysearch {
                         bmk.setProperty(Bookmark.BOOKMARK_QUERY, querystring);
                         bmk.addTag("/"+userName); // add to bookmark folder
                         bmk.addTag("searchresult,"+userName); // add tag
+                        bmk.setOwner(userName);
                         String urlhash = post.get("bookmarkref");
                         final URIMetadataNode urlentry = indexSegment.fulltext().getMetadata(UTF8.getBytes(urlhash));
                         if (urlentry != null && !urlentry.dc_title().isEmpty()) {
                             bmk.setProperty(Bookmark.BOOKMARK_TITLE, urlentry.dc_title());
                             bmk.setProperty(Bookmark.BOOKMARK_DESCRIPTION, urlentry.dc_subject());
+                            bmk.setProperty(Bookmark.BOOKMARK_HOST, urlentry.dc_host());
                             System.err.println("yacyseach -*-*-*-* Titel: " + urlentry.dc_title());
                             System.err.println("yacyseach -*-*-*-* Text: " + urlentry.getText());
                             System.err.println("yacyseach -*-*-*-* Text: " + urlentry.getText());
@@ -655,10 +657,10 @@ public class yacysearch {
                                 sb.loader,
                                 urlstr,
                                 ClientIdentification.yacyInternetCrawlerAgent,
-                                userName+"659",
+                                userName,
                                 true,
                                 "searchresults",
-                                userName+"662");
+                                userName);
                     } catch (final Throwable e) { }
                 }
             }

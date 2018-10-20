@@ -470,9 +470,12 @@ public class BookmarksDB {
         private static final String BOOKMARK_OWNER = "bookmarkOwner";
         private static final String BOOKMARK_IS_FEED = "bookmarkIsFeed";
         public static final String BOOKMARK_QUERY = "bookmarkQuery"; // tag for original search string if bookmark was created from search result
+        public static final String BOOKMARK_ORGANIZATION = "bookmarkOrganization";
+        public static final String BOOKMARK_HOST = "bookmarkHost";
         private final String urlHash;
         private String hostIdHash;   //to compare Bookmarks (Bernd)
         private String organization;   //to compare Bookmarks (Bernd)
+        private String host;   //to compare Bookmarks (Bernd)
         private Set<String> tagNames;
         private long timestamp;
         private final Map<String, String> entry;
@@ -481,8 +484,11 @@ public class BookmarksDB {
             this.entry = new HashMap<String, String>();
             this.urlHash = ASCII.String(url.hash());
             this.hostIdHash = getHostIdHash();
-            this.organization = getOrganization();
+            this.organization = url.getOrganization();
             this.entry.put(BOOKMARK_URL, url.toNormalform(false));
+            this.entry.put(BOOKMARK_ORGANIZATION, url.getOrganization());
+            System.err.println("-*-*-*-* BOOKMARK getOrganization: " + url.getOrganization());
+            this.entry.put(BOOKMARK_HOST, url.getHost());
             this.tagNames = new HashSet<String>();
             this.timestamp = System.currentTimeMillis();
 
@@ -534,13 +540,15 @@ public class BookmarksDB {
         }
         
         public String getOrganization() {
-        	String[] org = getHostIdHash().split("//."); 
-       
-       	return org.length>1?org[1]:null;
+return this.entry.get(BOOKMARK_ORGANIZATION);
         }
 
         public String getUrl() {
             return this.entry.get(BOOKMARK_URL);
+        }
+        
+        public String getHost() {
+        	return this.entry.get(BOOKMARK_HOST);
         }
 
         public Set<String> getTags() {

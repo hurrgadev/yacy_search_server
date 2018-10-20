@@ -43,6 +43,7 @@ public class add_p {
             final String url=post.get("url","");
             final String title=post.get("title",url);
             final String description=post.get("description","");
+            final String host = post.get("host","");
             String tagsString = post.get("tags","");
             final String pathString = post.get("path","/unsorted");
             tagsString= tagsString + "," + pathString;
@@ -51,6 +52,7 @@ public class add_p {
             if(bookmark != null){
                 bookmark.setProperty(BookmarksDB.Bookmark.BOOKMARK_TITLE, title);
                 bookmark.setProperty(BookmarksDB.Bookmark.BOOKMARK_DESCRIPTION, description);
+                bookmark.setProperty(BookmarksDB.Bookmark.BOOKMARK_HOST, host);
                 if(user!=null){
                     bookmark.setOwner(user.getUserName());
                 }

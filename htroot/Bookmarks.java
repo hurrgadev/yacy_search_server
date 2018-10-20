@@ -60,6 +60,7 @@ import net.yacy.kelondro.workflow.BusyThread;
 import net.yacy.peers.NewsPool;
 import net.yacy.search.AutoSearch;
 import net.yacy.search.Switchboard;
+import net.yacy.search.query.SearchEventCache;
 import net.yacy.server.serverObjects;
 import net.yacy.server.serverSwitch;
 
@@ -81,7 +82,9 @@ public class Bookmarks {
         final static float TAGCLOUD_FONTSIZE_MAX = 2.0f; // max font-size in em
 
     public static serverObjects respond(final RequestHeader header, final serverObjects post, final serverSwitch env) {
-
+        // clean up all search events
+        SearchEventCache.cleanupEvents(true);
+        
     	int max_count = 10;
     	int start=0;
     	int display = 0;
@@ -518,6 +521,6 @@ public class Bookmarks {
     	map.put("description", description.replace(',', ' '));
     	map.put("tags", tagsString.replace(',', ' '));
     	sb.peers.newsPool.publishMyNews(sb.peers.mySeed(), NewsPool.CATEGORY_BOOKMARK_ADD, map);
-    }
+    }   
 
 }
